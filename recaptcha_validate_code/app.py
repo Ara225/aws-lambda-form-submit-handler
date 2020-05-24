@@ -30,44 +30,33 @@ def lambda_handler(event, context):
     # Decrypt the environment variable
     recaptchaKey = boto3.client('kms').decrypt(CiphertextBlob=b64decode(environ['recaptchaKey']))['Plaintext'].decode('utf-8')
     if event["httpMethod"] == "POST":
+        returnDict = {
+                         "statusCode": 500,
+                         'headers': {
+                             "Access-Control-Allow-Origin": "*",
+                             "Access-Control-Allow-Headers": "Content-Type",
+                             "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
+                         }
+                     }
         try:
             if not event["body"]:
-                return {
-                    "statusCode": 500,
-                    'headers': {
-                        "Access-Control-Allow-Origin": "*",
-                        "Access-Control-Allow-Headers": "Content-Type",
-                        "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
-                    },
-                    "body": json.dumps({
-                        "Error": "Empty body"
-                    }),
-                }
+                returnDict["body"] = json.dumps({"Error": "Empty body"})
             else:
-                respon = requests.post("https://www.google.com/recaptcha/api/siteverify", {"secret": recaptchaKey, 
-                "response": event["body"]})
-                print(respon.text)
-                return {
-                    "statusCode": 200,
-                    'headers': {
-                        "Access-Control-Allow-Origin": "*",
-                        "Access-Control-Allow-Headers": "Content-Type",
-                        "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
-                    },
-                    "body": json.dumps({
-                        "message": respon.json()
-                    }),
-                }
+                body = json.loads(event["body"])
+                responseFromGoogle = requests.post("https://www.google.com/recaptcha/api/siteverify", {"secret": recaptchaKey, 
+                "response": body["g-recaptcha-response"]})
+                print(responseFromGoogle.json())
+                if responseFromGoogle.status_code != 200:
+                    returnDict["body"] = json.dumps({"Error": "ReCaptcha validation failed"})
+                elif responseFromGoogle.json()["success"] == False:     
+                    returnDict["statusCode"] = 200
+                    returnDict["body"] = json.dumps({"Error": "ReCaptcha validation failed.", 
+                                                     "error-codes": responseFromGoogle.json().get("error-codes", ["not provided."])})
+                elif responseFromGoogle.json()["score"] < 0.5:
+                    returnDict["statusCode"] = 200
+                    returnDict["body"] = json.dumps({"Error": "Score below threshhold"})
         except Exception as e:
             print(e)                 
-            return {
-                "statusCode": 500,
-                'headers': {
-                    "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Headers": "Content-Type",
-                    "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
-                },
-                "body": json.dumps({
-                    "message": "Exception occurred"
-                }),
-            }
+            returnDict["body"] = json.dumps({"Error": "Exception occurred"})
+        finally:
+            return returnDict
