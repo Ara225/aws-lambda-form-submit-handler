@@ -12,7 +12,7 @@ Resources:
   recaptchaFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: recaptcha_validate_code/
+      CodeUri: form_submit_code/
       Handler: app.lambda_handler
       Runtime: python3.8
       Events:
@@ -23,8 +23,10 @@ Resources:
             Method: post
       Environment:
         Variables:
+          emailFrom: "Email Sender <example@example.com>"
+          emailTo: "Comma separated email list"
           recaptchaKey: >-
-            EncryptedReCaptchaKey
+            encryptedReCaptchaKey
     
 
 Outputs:
