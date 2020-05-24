@@ -1,0 +1,54 @@
+<html>
+    <head>
+        <title>
+            Sample Title
+        </title>
+        <script src="https://www.google.com/recaptcha/api.js"></script>
+    </head>
+    <body>
+        <script>
+            /**
+             * Convert form to a JSON object
+            */
+            function formToJSON(form) {
+              var data = {}
+              for (var i=0; i < form.length; i++) {
+                // This allows skipping fields
+                if (form[i].name == "") {
+                  continue
+                }
+                else {
+                  // Assumes all form fields with names must have a value
+                  if (form[i].value == "") {
+                    return null
+                  }
+                  else {
+                    data[form[i].name] = form[i].value;
+                  }
+                }
+              }
+              return data;
+            }
+            function onSubmit(token) {
+              var form = formToJSON(document.getElementById("demo-form"));
+              if (form) {
+                  fetch("http://127.0.0.1:3000/recaptcha_validate", {
+                    method: "POST", 
+                    body: JSON.stringify(form)
+                  }).then(res => {
+                    res.json().then(res2 => {console.log(res2)})
+                  });
+              }
+              // TODO: Process bad input
+            }
+          </script>
+
+          <form id="demo-form">
+            <input id="fieldOneId" name="fieldOneName">
+            <button class="g-recaptcha" 
+            data-sitekey="recaptchaSiteKey" 
+            data-callback='onSubmit' 
+            data-action='submit'>Submit</button>  
+          </form>
+    </body>
+</html>

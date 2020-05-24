@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Recaptcha test 
+  Form submit handler
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -9,17 +9,17 @@ Globals:
     Timeout: 3
 
 Resources:
-  recaptchaFunction:
+  formSubmitHandlerFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: form_submit_code/
       Handler: app.lambda_handler
       Runtime: python3.8
       Events:
-        recaptchaPost:
+        formSubmitHandlerPost:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /recaptcha_validate
+            Path: /formSubmitHandler
             Method: post
       Environment:
         Variables:
@@ -33,12 +33,12 @@ Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  recaptchaApi:
-    Description: "API Gateway endpoint URL for Prod stage for Recaptcha function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/recaptcha_validate"
-  recaptchaFunction:
-    Description: "Recaptcha Lambda Function ARN"
-    Value: !GetAtt recaptchaFunction.Arn
-  recaptchaFunctionIamRole:
-    Description: "Implicit IAM Role created for Recaptcha function"
-    Value: !GetAtt recaptchaFunctionRole.Arn
+  formSubmitHandlerApi:
+    Description: "API Gateway endpoint URL for Prod stage for the function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/formSubmitHandler"
+  formSubmitHandlerFunction:
+    Description: "This Lambda Function's ARN"
+    Value: !GetAtt formSubmitHandlerFunction.Arn
+  formSubmitHandlerFunctionIamRole:
+    Description: "Implicit IAM Role created for this function"
+    Value: !GetAtt formSubmitHandlerFunctionRole.Arn
