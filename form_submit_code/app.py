@@ -92,7 +92,7 @@ def lambda_handler(event, context):
         Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
     """
     if event["httpMethod"] == "POST":
-        # Decrypt the environment variable
+        # Decrypt the recaptchaKey environment variable. If it's stored as plaintext recaptchaKey = environ['recaptchaKey'] will work perfectly
         recaptchaKey = boto3.client('kms').decrypt(CiphertextBlob=b64decode(environ['recaptchaKey']))['Plaintext'].decode('utf-8')
         # Remove the Access-Control-Allow-* headers if requests will always be from the same domain
         returnDict = {

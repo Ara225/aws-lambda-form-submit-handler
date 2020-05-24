@@ -2,9 +2,9 @@ version = 0.1
 [default]
 [default.deploy]
 [default.deploy.parameters]
-stack_name = "recaptcha-validate"
+stack_name = "formSubmitHandler"
 s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1900s6ivpckdz"
-s3_prefix = "recaptcha-validate"
+s3_prefix = "formSubmitHandler"
 region = "eu-west-2"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
